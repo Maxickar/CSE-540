@@ -1,0 +1,12 @@
+{
+  "name": "cse540-group25-iam",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "compile": "hardhat compile"
+  },
+  "devDependencies": {
+    "hardhat": "^3.0.0"
+  }
+}
