@@ -22,4 +22,5 @@ HardHat: Runs and tests smart contracts locally and measures gas usage
 
 SHA-256: Generates credential hashes for integrity checking
 
+
 *This repository is currently a draft. Exact dependency versions and network configuration will be added as development proceeds.
