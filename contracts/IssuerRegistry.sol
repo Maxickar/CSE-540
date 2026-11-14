@@ -28,6 +28,8 @@ contract IssuerRegistry is IIssuerRegistry {
 
         #this adds them to the approved list
         approvedIssuers[issuer] = true;
+
+        #every change tracks via emit
         emit IssuerAuthorized(issuer);
     }
 
@@ -40,6 +42,8 @@ contract IssuerRegistry is IIssuerRegistry {
 
         #removes from the list
         approvedIssuers[issuer] = false;
+
+        #every change tracks via emit
         emit IssuerAuthorizationRevoked(issuer);
     }
 
