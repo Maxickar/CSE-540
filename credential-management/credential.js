@@ -1,8 +1,9 @@
 
-const crypto = require("node:crypto");
-const fs = require("node:fs");
+import crypto from "node:crypto";
+import fs from "node:fs";
 
-const FILE = "credentials.json";
+const FILE = process.env.CREDENTIAL_FILE ||
+    new URL("./credentials.json", import.meta.url);
 
 function createCredential(studentId, university, degree) {
     return {
@@ -61,7 +62,7 @@ function verifyCredential(id) {
     return generateHash(record.credential) === record.hash;
 }
 
-module.exports = {
+export {
     createCredential,
     generateHash,
     saveCredential,
