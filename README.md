@@ -6,36 +6,68 @@ Maxwell Goisman, Abdullah Alzoabi, Nawaf Alsufiani, Ju-Won Hyun, Farhan Sadaf
 
 ## Our project
 
-We are building a simple system for verifying university credentials. A university issues a credential to a student, and the student can share it with an employer. The employer can check if the credential is real and still valid.
+We are building a simple system for verifying university credentials. Universities sign and issue credentials, and verifiers check the issuer’s signature, data integrity, and current validity.
 
-We use smart contracts to keep track of approved universities and credential records. The actual student information is kept off-chain.
+The goal is for students to share their credentials with employers. The student sharing flow and user interface are still planned.
+
+We use smart contracts to track approved universities and credential records. Original credentials and signatures stay off-chain in a local JSON file. The contracts store hashes, wallet addresses, and credential status.
 
 ## Main files
 
-- contracts/IssuerRegistry.sol - the admin can approve universities or remove their approval.
-- contracts/CredentialRegistry.sol - registers student DID hashes and handles issuing, revoking, and checking credentials.
-- contracts/interfaces/ - lists the functions for both contracts.
-- credential-management/ - creates, hashes, signs, and saves credentials. It also checks signatures.
-- scripts/check-contracts.js - tests the contracts and checks permissions and errors.
-- scripts/integrated-demo.js - uses sample data to issue and verify 20 credentials and test invalid ones.
+- `contracts/IssuerRegistry.sol` - approves universities and removes their approval.
+- `contracts/CredentialRegistry.sol` - registers student DID hashes and handles issuing, revoking, and checking credentials.
+- `contracts/interfaces/` - defines the interfaces for both contracts.
+- `credential-management/credential.js` - creates and hashes credentials.
+- `credential-management/signature.js` - signs credentials and recovers the signer’s address.
+- `credential-management/signed-storage.js` - saves and retrieves original credentials and signatures.
+- `credential-management/verification.js` - checks the signature against the recorded issuer, then checks contract validity.
+- `data/demo-credentials.csv` - contains 20 sample credentials for 5 students.
+- `scripts/check-contracts.js` - checks contract permissions, invalid inputs, duplicates, revocation, and events.
+- `scripts/integrated-demo.js` - connects the modules and runs the complete demo.
 
 ## How the demo works
 
-1. The admin approves a university.
-2. Students register their DID hashes.
-3. The university signs the credentials, and their hashes are recorded on the blockchain.
-4. The script checks the university signature, stored hash, and whether the credential is still valid.
-5. We also test changed data, wrong signatures, and revoked credentials to make sure they fail.
+1. The admin approves university wallets.
+2. Students register their DID hashes using test wallets.
+3. The script reads the CSV and creates credentials with new UUIDs and timestamps.
+4. The university signs each credential, and the original data and signature are saved together.
+5. The university registers each credential’s hash through the smart contract.
+6. The verifier checks the signature and the contract record.
+7. The demo checks modified data, a different signer, an invalid signature, and a revoked credential.
 
-The signature check is done in JavaScript. The contracts handle the credential hashes, issuer approval, and revocation status.
+**Issuance:**
+
+CSV → Create credential → University signs → Save original and signature → Register hash on-chain
+
+**Verification:**
+
+Read original and signature → Recover signer → Match the recorded issuer → Check hash, issuer approval, and revocation status
+
+Signature verification happens in JavaScript. Contract checks happen through `isCredentialValid()`. Both must pass for the credential to be accepted.
+
+## Demo results
+
+The demo issues and verifies 20 credentials for 5 students, then checks four invalid cases.
+
+| Scenario | Valid |
+| --- | --- |
+| Original credential | true |
+| Changed degree | false |
+| Wrong signer | false |
+| Invalid signature | false |
+| Revoked credential | false |
+
+The wrong-signer case uses another approved university. Its signature is rejected because it does not match the university that issued that credential.
 
 ## Tools
 
-We are using Solidity, Hardhat, Ethers.js, Node.js, and SHA-256. For now, everything runs locally using Hardhat.
+Solidity, Hardhat, Ethers.js, Node.js, and SHA-256.
+
+Everything currently runs on a local Hardhat network using test wallets.
 
 ## How to run it
 
-Install Node.js, open a terminal in the project folder, and run:
+Use Node.js 22.13 or newer. From the project folder, run:
 
 ```bash
 npm ci
@@ -44,13 +76,15 @@ npx hardhat run scripts/check-contracts.js
 npx hardhat run scripts/integrated-demo.js
 ```
 
-The demo uses fake students and universities. It saves a JSON file at data/signed-credentials.json when it runs. Git ignores that file.
+The integrated demo saves original credentials and signatures to `data/signed-credentials.json`. Git ignores this generated file.
+
+Each run deploys fresh local contracts and appends new credentials to the JSON file. Records from earlier runs belong to those earlier deployments.
 
 ## What we still need to do
 
-- Make a simple interface for students, universities, and employers.
-- Add a way for students to prove they own the wallet connected to their credential.
-- Improve how credentials are stored and shared.
-- Do more testing and measure gas costs for the final report.
+- Make an interface for students, universities, and employers.
+- Add proof that a student presenting a credential owns its associated wallet.
+- Improve credential storage and student sharing.
+- Extend testing and measure gas costs for the final report.
 
-This is just a class project, so we are not using real student records or connecting to ASU systems.
+This is a class project using dummy data, with no connection to ASU systems. It checks signatures and recorded credential status; it does not determine whether an approved university’s original academic claims are truthful.
