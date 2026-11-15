@@ -7,6 +7,8 @@
     "compile": "hardhat compile"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^4.2.2",
+    "ethers": "^6.17.0",
     "hardhat": "^3.0.0"
   }
 }

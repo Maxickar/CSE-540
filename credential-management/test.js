@@ -1,11 +1,11 @@
 
-const {
+import {
     createCredential,
     generateHash,
     saveCredential,
     getCredential,
     verifyCredential
-} = require("./credential");
+} from "./credential.js";
 
 const credential = createCredential(
     "STUDENT-001",

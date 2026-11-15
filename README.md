@@ -6,53 +6,55 @@ Maxwell Goisman, Abdullah Alzoabi, Nawaf Alsufiani, Ju-Won Hyun, Farhan Sadaf
 
 ## Our idea
 
-We want to make a basic system for checking university credentials. A university issues a credential, a student can choose who to share it with, and an employer can check if it is real and still valid.
+We are building a basic system for checking university credentials. A university issues a credential, a student holds it and can share it, and an employer checks if it is real and still valid.
 
-We are using a blockchain to keep track of approved universities and credential status. The actual academic information will stay off-chain instead of putting student records on a public blockchain.
+We use smart contracts to keep track of approved universities, student DID hashes, credential hashes, and revocations. We keep the actual credential data off-chain.
 
-This repo is our **smart contract draft**. The functions are planned out, but we have not built the full system yet.
+## What we have so far
 
-## Main parts
+- `contracts/IssuerRegistry.sol` - the admin can approve or remove university accounts.
+- `contracts/CredentialRegistry.sol` - registers student DID hashes and handles credential issuance, revocation, and validity checks.
+- `contracts/interfaces/` - interfaces for the two contracts.
+- `credential-management/` - creates credentials, hashes them, signs them with a university test wallet, saves them locally, and checks signatures.
+- `scripts/check-contracts.js` - tests the contracts, permissions, errors, and events.
+- `scripts/integrated-demo.js` - reads the sample CSV, registers test students, issues 20 credentials, and tests verification.
 
-- `IssuerRegistry.sol` - keeps track of which university accounts are allowed to issue credentials.
-- `CredentialRegistry.sol` - keeps track of student DID hashes, issued credentials, and revocations.
-- `contracts/interfaces/` - shows the functions we plan to use for both contracts.
+## How the demo works
 
-## How it would work
+1. The admin approves a university account.
+2. Students register DID hashes using their test wallets.
+3. The script reads the CSV and creates credentials from the sample data. It generates a new credential ID and timestamp for each one.
+4. The university signs each credential, saves it off-chain, and registers its hash on-chain.
+5. Verification checks the university's signature, the on-chain hash, issuer approval, and revocation status.
+6. The demo also tests changed data, the wrong signer, an invalid signature, and a revoked credential.
 
-1. An admin approves a university account.
-2. A student registers a DID hash using their wallet.
-3. The university signs a credential and records its ID and hash on Ethereum.
-4. The student shares the credential with an employer off-chain.
-5. The employer checks the signature, hash, approved issuer, and revocation status.
-6. If needed, the university can revoke a credential it issued.
+The signature check happens in JavaScript. The on-chain `verifyAndLogCredential` function only checks the hash and status, not the signature.
 
-We also included an option to log a verification check as a blockchain event. The normal read-only validity check would not create an event.
+## Tools
 
-## Tools we plan to use
+- Ethereum-compatible local network through Hardhat
+- Solidity (`^0.8.34`) for the smart contracts
+- Hardhat and Ethers.js for local testing and wallet interactions
+- SHA-256 for hashing credential data
 
-- Ethereum - blockchain for the DID and credential status records
-- Solidity (`^0.8.34`) - smart contracts
-- Hardhat - local testing and gas measurements
-- SHA-256 - making hashes of credential data before storing the hashes on-chain
+## How to run it
 
-We added a basic Hardhat setup so we can compile the draft. We will add tests when we start implementing the functions.
+Install Node.js and then run these commands from the repo folder:
 
-## How to check the draft with Hardhat
+```bash
+npm ci
+npm run compile
+npx hardhat run scripts/check-contracts.js
+npx hardhat run scripts/integrated-demo.js
+```
 
-1. Download or clone this repo.
-2. Install Node.js 22.13 or newer, if needed.
-3. Open a terminal in this folder and run `npm install`.
-4. Run `npm run compile` to check the Solidity files.
+The integrated demo uses fake students and university accounts. It writes `data/signed-credentials.json` locally when it runs. That file is ignored by Git.
 
-The main contracts are marked `abstract` because the functions are not implemented yet. They can be checked for compile errors, but they are not ready to deploy or use yet. We will add the function logic and tests in the next part of the project.
+## What is still left
 
-## What we still need to do
+- Build a simple interface for students, universities, and employers.
+- Add a way to prove the person sharing a credential controls the student's wallet.
+- Improve off-chain storage and the way credentials are shared.
+- Do more tests and measure gas costs for the final report.
 
-- Add checks so only the admin approves universities and only approved universities issue credentials.
-- Let students register DIDs and stop duplicate credential IDs.
-- Make sure only the issuing university can revoke a credential.
-- Implement validity checks and event logging.
-- Add digital signature verification in the application, plus basic testing and a simple interface.
-
-For the class demo, we will use fake student and university data. We are not connecting to ASU or using real student records.
+This is a class prototype. We are not connected to ASU or using real student records.

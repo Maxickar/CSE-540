@@ -26,10 +26,10 @@ contract IssuerRegistry is IIssuerRegistry {
         //if a university is already authorized then prints this message
         require(!approvedIssuers[issuer], "Already authorized");
 
-        #this adds them to the approved list
+        //this adds them to the approved list
         approvedIssuers[issuer] = true;
 
-        #every change tracks via emit
+        //every change tracks via emit
         emit IssuerAuthorized(issuer);
     }
 
@@ -40,10 +40,10 @@ contract IssuerRegistry is IIssuerRegistry {
         //rejects invalid wallet of university if trying to remove unauthrorized university in approved list
         require(approvedIssuers[issuer], "Not authorized");
 
-        #removes from the list
+        //removes from the list
         approvedIssuers[issuer] = false;
 
-        #every change tracks via emit
+        //every change tracks via emi
         emit IssuerAuthorizationRevoked(issuer);
     }
 
